@@ -8,7 +8,7 @@ for (let i = num; Math.trunc(i) > 0; i /= 10) {
 
 console.log('Произведение :', mult);
 mult **= 3;
-console.log('Возведение в 3 степень:', mult);
+console.log('Возведение в трерью степень:', mult);
 
 for (ost = mult ; ost > 100; ost/=10) {}
 
