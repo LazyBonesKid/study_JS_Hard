@@ -1,6 +1,6 @@
 'use strict';
 
-let Data = new Date().getDay() - 1;
+let Data = new Date().getDay();
 
 let arr = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 
