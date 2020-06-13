@@ -2,8 +2,6 @@
 
 let Data = new Date().getDay() - 1;
 
-console.log(Data);
-
 let arr = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 
 for(let i = 0; i < arr.length; i++) {
