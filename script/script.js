@@ -34,7 +34,7 @@ DomElement.prototype.domCreate = function () {
     }else if (this.selector.indexOf('#') !== -1){
         docEl.setAttribute('id', selectorDop);
     }
-    
+
     docEl.textContent = '123';
     document.body.append(docEl);
 
