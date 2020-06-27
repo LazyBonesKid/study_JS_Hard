@@ -18,8 +18,6 @@ DomElement.prototype.domCreate = function () {
     width:  ${this.width};
     background: ${this.bg};
     font-size: ${this.frontSize};
-    top: 0px;
-    right: 0px;
     position: absolute;
     `;
 
@@ -27,19 +25,22 @@ DomElement.prototype.domCreate = function () {
     
     let 
     selectorDop = this.selector.slice(1),
-    docEl = document.createElement(`${this.selector.slice(1)}`);
+    docEl;
 
     if (this.selector.indexOf('.') !== -1) {
+        docEl = document.createElement('div');
         docEl.className = selectorDop;
     }else if (this.selector.indexOf('#') !== -1){
+        docEl = document.createElement('p');
         docEl.setAttribute('id', selectorDop);
     }
 
-    docEl.textContent = '123';
+    docEl.textContent =  prompt('text');
     document.body.append(docEl);
 
+    docEl.style.top = '0px';
+    docEl.style.right = '0px';
     document.addEventListener('keydown', function(event) {
-    
         if (event.code == 'KeyW' || event.code == 'ArrowUp') {
             dTop -= 10;
             docEl.style.top = dTop + 'px';
@@ -81,15 +82,11 @@ DomElement.prototype.domCreate = function () {
             docEl.style.right = dRight + 'px';
         }
     });
-    
-
 };
 
 let domEl = new DomElement('#black','100px','100px','#00FA9A', '50px');
 
-
 domEl.domCreate();
-
 
 let 
 dTop = 0,
