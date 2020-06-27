@@ -10,10 +10,19 @@ function DomElement (selector, height, width, bg, frontSize) {
 }
 
 DomElement.prototype.domCreate = function () {
-    let style = document.createElement('style');
-    style.type = 'text/css';
+    let 
+    selectorDop = this.selector.slice(1),
+    docEl;
 
-    style.innerHTML =`${this.selector} { 
+    if (this.selector.indexOf('.') !== -1){
+        docEl = document.createElement('div');
+        docEl.className = selectorDop;
+    }else if (this.selector.indexOf('#') !== -1){
+        docEl = document.createElement('p');
+        docEl.setAttribute('id', selectorDop);
+    }
+    
+    docEl.style.cssText = `
     height: ${this.height};
     width:  ${this.width};
     background: ${this.bg};
@@ -21,25 +30,11 @@ DomElement.prototype.domCreate = function () {
     position: absolute;
     `;
 
-    document.getElementsByTagName('head')[0].appendChild(style);
-    
-    let 
-    selectorDop = this.selector.slice(1),
-    docEl;
-
-    if (this.selector.indexOf('.') !== -1) {
-        docEl = document.createElement('div');
-        docEl.className = selectorDop;
-    }else if (this.selector.indexOf('#') !== -1){
-        docEl = document.createElement('p');
-        docEl.setAttribute('id', selectorDop);
-    }
-
-    docEl.textContent =  prompt('text');
+    docEl.textContent = prompt('text');
     document.body.append(docEl);
-
     docEl.style.top = '0px';
     docEl.style.right = '0px';
+
     document.addEventListener('keydown', function(event) {
         if (event.code == 'KeyW' || event.code == 'ArrowUp') {
             dTop -= 10;
