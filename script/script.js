@@ -122,26 +122,6 @@ class AppData {
         
     };
 
-    getAddExpenses() { // Возможные расходы !
-        const addExpenses = additionalExpensesItem.value.split(',');
-        for (let i = 0; i < addExpenses.length; i++) {
-            addExpenses[i] = addExpenses[i].trim();
-            if (addExpenses[i] !== '') {
-                this.addExpenses.push(addExpenses[i]);
-            }
-        }
-    };
-
-    getAddIncome() { // Возможный доход !
-        for (let i = 0; i < additionalIncomeItem.length; i++) {
-            let itemValue = additionalIncomeItem[i].value.trim();
-            if (itemValue !== '') {
-                this.addIncome.push(itemValue);
-            }
-        }
-
-    };
-
     addBlock () {
         const inputBlock = (block, button) => {
             const cloneBlock = block[0].cloneNode(true);
