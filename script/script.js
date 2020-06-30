@@ -1,7 +1,22 @@
 'use strict';
 
-const
+const setCookie = (key, value, year, month, day, path, domain, secure) => {
+    let cookieStr = (key) + '=' + (value);
+    if (year) {
+        const expires = new Date(year, month - 1, day);
+        cookieStr += '; expires=' + expires.toGMTString();
+    }
 
+    cookieStr += path ? '; path=' + (path) : '';
+    cookieStr += domain ? '; domain=' + (domain) : '';
+    cookieStr += secure ? '; secure' : '';
+
+    document.cookie = cookieStr;
+    //encodeURI();
+    //decodeURI();
+};
+
+const
     // ЛЕВЫЙ БЛОК
     salaryAmount = document.querySelector('.salary-amount'),
     incomeTitle = document.querySelector('[class="income-title"]'),
@@ -34,11 +49,14 @@ const
     additionalExpensesValue = document.getElementsByClassName('result-total')[4],
     incomePeriodValue = document.getElementsByClassName('result-total')[5],
     targerMonthValue = document.getElementsByClassName('result-total')[6],
-    start = document.getElementById('start');
+    start = document.getElementById('start'),
 
 
 //////////
-const depositCheck = document.getElementById('deposit-check');
+    depositCheck = document.getElementById('deposit-check'),
+    depositBank = document.querySelector('.deposit-bank'),
+    depositAmount = document.querySelector('.deposit-amount'),
+    depositPercent = document.querySelector('.deposit-percent');
 //////////
 
 
@@ -55,6 +73,7 @@ const isString = function (n) {
     const re = /[!@#$%^&*()_+-=}{]|[0-9]|[A-z]/g;
     return re.test(n) || n === null || !n.trim()
 }
+
 
 
 class AppData {
@@ -78,7 +97,9 @@ class AppData {
         this.getExpInc();
         this.getExpIncMonth();
         this.getAddExpInc ();
+        this.getInfoDeposit();
         this.getBudget();
+        this.saveAppData();
 
         this.showRezult();
         this.blockingInputs();
@@ -86,7 +107,12 @@ class AppData {
     };
 
     showRezult() {
+        periodSelect.value = localStorage.periodSelect;
+        periodNumber.textContent = localStorage.periodNumber;
+
         document.querySelector('.period-select').addEventListener('input', () => {
+            localStorage.periodSelect = periodSelect.value;
+            localStorage.periodNumber = periodNumber.textContent;
             incomePeriodValue.value = this.calcPeriod();
         });
         budgetMonthValue.value = this.budgetMonth;
@@ -209,15 +235,22 @@ class AppData {
     };
 
     getBudget() {
-
-        this.budgetMonth = this.budget + this.incomeMonth - this.expensesMonth;
+        if (this.percentDeposit >= 1) {
+            this.percentDeposit /= 100;
+        }
+        const monthDeposit = this.percentMoney * this.percentDeposit;
+        this.budgetMonth = this.budget + this.incomeMonth - this.expensesMonth + monthDeposit;
         this.budgetDay = Math.floor(this.budgetMonth / 30);
     };
 
     getTargetMonth() {
 
         if (this.budgetDay > 0) {
-            return 'Цель будет достигнута через: ' + Math.ceil(targetAmount.value / this.budgetMonth) + ' месяца';
+            if(targetAmount.value == '') {
+                return 'Цель будет достигнута через: ' + Math.ceil(localStorage.targetAmount / this.budgetMonth) + ' месяца';    
+            } else {
+                return 'Цель будет достигнута через: ' + Math.ceil(targetAmount.value / this.budgetMonth) + ' месяца';
+            }
         } else {
             return 'Цель не будет достигнута';
         }
@@ -235,16 +268,39 @@ class AppData {
         }
     };
 
-    getInfoDeposit() {
-        if (this.deposit) {
-            do {
-                this.percentDeposit = prompt('Какой годовой процент?', 10);
-            } while (!isNumber(this.percentDeposit));
-            do {
-                this.moneyDeposit = prompt('какая сумма заложена?', 10000);
-            } while (!isNumber(this.moneyDeposit));
-        }
-    };
+    saveAppData () {
+        localStorage.income = JSON.stringify(this.income);
+        localStorage.expenses = JSON.stringify(this.expenses);
+        localStorage.addIncome = JSON.stringify(this.addIncome);
+        localStorage.addExpenses = JSON.stringify(this.addExpenses);
+        localStorage.deposit = JSON.stringify(this.deposit);
+        localStorage.incomeMonth = JSON.stringify(this.incomeMonth);
+        localStorage.budget = JSON.stringify(this.budget);
+        localStorage.percentDeposit = JSON.stringify(this.percentDeposit);
+        localStorage.percentMoney = JSON.stringify(this.percentMoney);
+        localStorage.budgetDay = JSON.stringify(this.budgetDay);
+        localStorage.budgetMonth = JSON.stringify(this.budgetMonth);
+        localStorage.expensesMonth = JSON.stringify(this.expensesMonth);
+        localStorage.periodSelect = periodSelect.value;
+        localStorage.periodNumber = periodNumber.textContent;
+        localStorage.targetAmount = targetAmount.value;
+
+        setCookie('income', localStorage.income, 2021, 12, 31);
+        setCookie('expenses', localStorage.expenses, 2021, 12, 31);
+        setCookie('addIncome', localStorage.addIncome, 2021, 12, 31);
+        setCookie('addExpenses', localStorage.addExpenses, 2021, 12, 31);
+        setCookie('deposit', localStorage.deposit, 2021, 12, 31);
+        setCookie('incomeMonth', localStorage.incomeMonth, 2021, 12, 31);
+        setCookie('budget', localStorage.budget, 2021, 12, 31);
+        setCookie('percentDeposit', localStorage.percentDeposit, 2021, 12, 31);
+        setCookie('percentMoney', localStorage.percentMoney, 2021, 12, 31);
+        setCookie('budgetDay', localStorage.budgetDay, 2021, 12, 31);
+        setCookie('budgetMonth', localStorage.budgetMonth, 2021, 12, 31);
+        setCookie('expensesMonth', localStorage.expensesMonth, 2021, 12, 31);
+        setCookie('periodSelect', localStorage.periodSelect, 2021, 12, 31);
+        setCookie('periodNumber', localStorage.periodNumber, 2021, 12, 31);
+        setCookie('targetAmount', localStorage.targetAmount, 2021, 12, 31);
+    }
 
     blockingInputs() {
         const
@@ -256,24 +312,26 @@ class AppData {
         inputs.forEach((item) => {
             if (count !== leftInputsCount) {
                 count++;
-                item.setAttribute('readonly', 0);
+                item.disabled = true;
             } else {
                 return;
             }
         });
-    };
 
-    reset() {
         start.style.display = 'none';
         const cancel = document.getElementById('cancel');
         cancel.style.display = 'block';
         cancel.textContent = 'Сбросить';
+    };
+
+    reset() {
+
         cancel.addEventListener('click', () => {
             const inputs = document.querySelectorAll('[type="text"]');
 
             inputs.forEach((item) => {
                 item.value = '';
-                item.removeAttribute('readonly', 0);
+                item.disabled = false;
             });
 
             periodSelect.value = '1';
@@ -300,15 +358,18 @@ class AppData {
             if (depositCheckValue == true) {
                 depositCheck.click();
             }
-
-            for (let key in appData) {
-                if (typeof appData[key] !== 'function') {
-                    appData[key] = appDataCopy2[key];
+            
+            let appDataCopy2 = new AppData;
+            Object.assign(appDataCopy2, new AppData);
+            
+            for (let key in this) {
+                if (typeof this[key] !== 'function') {
+                    this[key] = appDataCopy2[key];
                 }
             }
-
             start.style.display = '';
             cancel.style.display = 'none';
+            localStorage.clear();
         });
     };
 
@@ -319,6 +380,51 @@ class AppData {
     calcPeriod() {
         return this.budgetMonth * periodSelect.value;
     };
+
+    getInfoDeposit() {
+        if (this.deposit) {
+            this.percentDeposit = depositPercent.value;
+            this.percentMoney = depositAmount.value;
+        }
+    };
+
+    changePercent() {
+        const valueSelect = this.value;
+        if(valueSelect == 'other') {
+            depositPercent.value = '';
+            depositPercent.disabled = false;
+            depositPercent.addEventListener('input', () => {
+                console.log(+depositPercent.value);
+                console.log(depositPercent.value[0]);
+                if(!isNumber(depositPercent.value) || +depositPercent.value > 100  || depositPercent.value.length > 3 || +depositPercent.value < 0 || depositPercent.value[0] == 0) {
+                    depositPercent.value = depositPercent.value.slice(0, -1);
+                } 
+            })
+        } else {
+            depositPercent.value = valueSelect;
+            depositPercent.disabled = true;
+        }
+        console.log(valueSelect);
+    }
+
+    depositHandler () {
+        if (depositCheck.checked) {
+            depositBank.style.display = 'inline-block';
+            depositAmount.style.display = 'inline-block';
+            depositPercent.style.display ='inline-block';
+            this.deposit = true;
+            depositBank.addEventListener('change', this.changePercent);
+        } else {
+            depositBank.style.display = 'none';
+            depositAmount.style.display = 'none';
+            depositPercent.style.display ='none';
+            depositBank.value = '0';
+            depositAmount.value = '';
+            this.deposit = false;
+
+            depositBank.removeEventListener('change', this.changePercent);
+        }
+    }
 
     addEventListeners() {
         depositCheck.addEventListener('click', () => {
@@ -360,17 +466,91 @@ class AppData {
         buttonPlusExpenses.addEventListener('click', event => {
             this.addBlock(event);
         });
+
+        depositCheck.addEventListener('change', this.depositHandler.bind(this));
     };
 }
 
-
-
-
-const appData = new AppData(),
-    appDataCopy2 = Object.assign({}, new AppData());
-
-let
-    depositCheckValue = false;
-
+const appData = new AppData();
+let depositCheckValue = false;
 
 appData.addEventListeners();
+
+
+const localArr = ['income', 'expenses', 'addIncome', 'addExpenses', 'deposit', 'incomeMonth' , 'budget', 
+'percentDeposit', 'percentMoney', 'budgetDay', 'budgetMonth', 'expensesMonth',
+'periodSelect', 'periodNumber', 'targetAmount'];
+
+const deletCookieAndLocalStorage = () => {
+    document.cookie.split(";").forEach((c) => { 
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, 
+        "=;expires=" + new Date().toUTCString() + ";path=/"); });
+        localStorage.clear();
+};
+
+function getCookie(name) {
+    let matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+const checkCookie = () => {
+
+    setInterval( () => {
+    for (let i = 0; i < localArr.length ; i++) {
+        if ( localStorage.length !== 0 && (localStorage[localArr[i]] == undefined || getCookie(localArr[i]) == undefined)) {
+            deletCookieAndLocalStorage();
+            cancel.click();
+        }
+    }
+}, 1000);
+
+};
+
+
+
+if (localStorage.budget !== undefined){
+
+    // LOCALSTORAGE //
+    appData.income = JSON.parse(localStorage.income);
+    appData.expenses = JSON.parse(localStorage.expenses);
+    appData.addIncome = JSON.parse(localStorage.addIncome);
+    appData.addExpenses = JSON.parse(localStorage.addExpenses);
+    appData.deposit = JSON.parse(localStorage.deposit);
+    appData.incomeMonth = +localStorage.incomeMonth;
+    appData.budget = +localStorage.budget;
+    appData.percentDeposit = localStorage.percentDeposit;
+    appData.percentMoney = localStorage.percentMoney;
+    appData.budgetDay = +localStorage.budgetDay;
+    appData.budgetMonth = +localStorage.budgetMonth;
+    appData.expensesMonth = +localStorage.expensesMonth;
+    // localStorage.periodSelect = periodSelect.value;
+    // localStorage.periodNumber = periodNumber.textContent;
+    // localStorage.targetAmount = targetAmount.value;
+    
+    // COOKIE // 
+    setCookie('income', localStorage.income, 2021, 12, 31);
+    setCookie('expenses', localStorage.expenses, 2021, 12, 31);
+    setCookie('addIncome', localStorage.addIncome, 2021, 12, 31);
+    setCookie('addExpenses', localStorage.addExpenses, 2021, 12, 31);
+    setCookie('deposit', localStorage.deposit, 2021, 12, 31);
+    setCookie('incomeMonth', localStorage.incomeMonth, 2021, 12, 31);
+    setCookie('budget', localStorage.budget, 2021, 12, 31);
+    setCookie('percentDeposit', localStorage.percentDeposit, 2021, 12, 31);
+    setCookie('percentMoney', localStorage.percentMoney, 2021, 12, 31);
+    setCookie('budgetDay', localStorage.budgetDay, 2021, 12, 31);
+    setCookie('budgetMonth', localStorage.budgetMonth, 2021, 12, 31);
+    setCookie('expensesMonth', localStorage.expensesMonth, 2021, 12, 31);
+    setCookie('periodSelect', localStorage.periodSelect, 2021, 12, 31);
+    setCookie('periodNumber', localStorage.periodNumber, 2021, 12, 31);
+    setCookie('targetAmount', localStorage.targetAmount, 2021, 12, 31);
+    //
+    appData.showRezult();
+    appData.blockingInputs();
+    appData.reset();
+}
+
+checkCookie();
+
+
