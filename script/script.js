@@ -168,43 +168,32 @@ class AppData {
 
     };
 
-    addBlock () {
-        const inputBlock = (block, button) => {
-            const cloneBlock = block[0].cloneNode(true);
-            cloneBlock.querySelectorAll('input')[0].value = '';
-            cloneBlock.querySelectorAll('input')[1].value = '';
+    addBlock (target, button) {
+
+        const cloneBlock = target.cloneNode(true);
+        cloneBlock.querySelectorAll('input')[0].value = '';
+        cloneBlock.querySelectorAll('input')[1].value = '';
             
 
-            cloneBlock.querySelectorAll('input')[0].addEventListener('input', () => {
-                if (isString(cloneBlock.querySelectorAll('input')[0].value)) {
-                    cloneBlock.querySelectorAll('input')[0].value = cloneBlock.querySelectorAll('input')[0].value.slice(0, -1);
-                }
-            });
-
-            cloneBlock.querySelectorAll('input')[1].addEventListener('input', () => {
-                if (!isNumber(cloneBlock.querySelectorAll('input')[1].value)) {
-                    cloneBlock.querySelectorAll('input')[1].value = cloneBlock.querySelectorAll('input')[1].value.slice(0, -1);
-                }
-            });
-
-            const startStr = block[0].className.split('-');
-            block[0].parentNode.insertBefore(cloneBlock, button);
-            block = document.querySelectorAll(`.${startStr[0]}-items`);
-
-            if (block.length === 3) {
-                button.style.display = 'none';
+        cloneBlock.querySelectorAll('input')[0].addEventListener('input', () => {
+            if (isString(cloneBlock.querySelectorAll('input')[0].value)) {
+                cloneBlock.querySelectorAll('input')[0].value = cloneBlock.querySelectorAll('input')[0].value.slice(0, -1);
             }
-        };       
+        });
 
-        if(event.path[0].className.split(' ')[1] == 'income_add') {
-            inputBlock(incomeItems, buttonPlusIncome);
-            incomeItems = document.querySelectorAll('.income-items');
-        }
+        cloneBlock.querySelectorAll('input')[1].addEventListener('input', () => {
+            if (!isNumber(cloneBlock.querySelectorAll('input')[1].value)) {
+                cloneBlock.querySelectorAll('input')[1].value = cloneBlock.querySelectorAll('input')[1].value.slice(0, -1);
+            }
+        });
 
-        if(event.path[0].className.split(' ')[1] == 'expenses_add') {
-            inputBlock(expensesItems,buttonPlusExpenses);
-            expensesItems = document.querySelectorAll('.expenses-items');
-        }
+        target.parentNode.insertBefore(cloneBlock, button);
+
+        const CountItems = document.querySelectorAll(`.${target.className}`);
+
+        if (CountItems.length === 3) {
+            button.style.display = 'none';
+        }      
 };
 
 
@@ -460,11 +449,13 @@ class AppData {
         });
 
         buttonPlusIncome.addEventListener('click', event => {
-            this.addBlock(event);
+            this.addBlock(event.target.closest('.income').querySelector('.income-items'), buttonPlusIncome);
+            incomeItems = document.querySelectorAll('.income-items');
         });
 
         buttonPlusExpenses.addEventListener('click', event => {
-            this.addBlock(event);
+            this.addBlock(event.target.closest('.expenses').querySelector('.expenses-items'),buttonPlusExpenses);
+            expensesItems = document.querySelectorAll('.expenses-items');
         });
 
         depositCheck.addEventListener('change', this.depositHandler.bind(this));
@@ -496,16 +487,15 @@ function getCookie(name) {
 }
 
 const checkCookie = () => {
-
-    setInterval( () => {
-    for (let i = 0; i < localArr.length ; i++) {
-        if ( localStorage.length !== 0 && (localStorage[localArr[i]] == undefined || getCookie(localArr[i]) == undefined)) {
-            deletCookieAndLocalStorage();
-            cancel.click();
+        setInterval( () => {
+        for (let i = 0; i < localArr.length ; i++) {
+            console.log(localStorage.length);
+            if ( localStorage.length !== 0 && (localStorage[localArr[i]] == undefined || getCookie(localArr[i]) == undefined)) {
+                deletCookieAndLocalStorage();
+                cancel.click();
+            }
         }
-    }
-}, 1000);
-
+    }, 1000);
 };
 
 
@@ -552,5 +542,4 @@ if (localStorage.budget !== undefined){
 }
 
 checkCookie();
-
 
