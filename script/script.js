@@ -122,43 +122,52 @@ class AppData {
         
     };
 
-    addBlock () {
-        const inputBlock = (block, button) => {
-            const cloneBlock = block[0].cloneNode(true);
-            cloneBlock.querySelectorAll('input')[0].value = '';
-            cloneBlock.querySelectorAll('input')[1].value = '';
+    getAddExpenses() { // Возможные расходы !
+        const addExpenses = additionalExpensesItem.value.split(',');
+        for (let i = 0; i < addExpenses.length; i++) {
+            addExpenses[i] = addExpenses[i].trim();
+            if (addExpenses[i] !== '') {
+                this.addExpenses.push(addExpenses[i]);
+            }
+        }
+    };
+
+    getAddIncome() { // Возможный доход !
+        for (let i = 0; i < additionalIncomeItem.length; i++) {
+            let itemValue = additionalIncomeItem[i].value.trim();
+            if (itemValue !== '') {
+                this.addIncome.push(itemValue);
+            }
+        }
+
+    };
+
+    addBlock (target, button) {
+
+        const cloneBlock = target.cloneNode(true);
+        cloneBlock.querySelectorAll('input')[0].value = '';
+        cloneBlock.querySelectorAll('input')[1].value = '';
             
 
-            cloneBlock.querySelectorAll('input')[0].addEventListener('input', () => {
-                if (isString(cloneBlock.querySelectorAll('input')[0].value)) {
-                    cloneBlock.querySelectorAll('input')[0].value = cloneBlock.querySelectorAll('input')[0].value.slice(0, -1);
-                }
-            });
-
-            cloneBlock.querySelectorAll('input')[1].addEventListener('input', () => {
-                if (!isNumber(cloneBlock.querySelectorAll('input')[1].value)) {
-                    cloneBlock.querySelectorAll('input')[1].value = cloneBlock.querySelectorAll('input')[1].value.slice(0, -1);
-                }
-            });
-
-            const startStr = block[0].className.split('-');
-            block[0].parentNode.insertBefore(cloneBlock, button);
-            block = document.querySelectorAll(`.${startStr[0]}-items`);
-
-            if (block.length === 3) {
-                button.style.display = 'none';
+        cloneBlock.querySelectorAll('input')[0].addEventListener('input', () => {
+            if (isString(cloneBlock.querySelectorAll('input')[0].value)) {
+                cloneBlock.querySelectorAll('input')[0].value = cloneBlock.querySelectorAll('input')[0].value.slice(0, -1);
             }
-        };       
+        });
 
-        if(event.path[0].className.split(' ')[1] == 'income_add') {
-            inputBlock(incomeItems, buttonPlusIncome);
-            incomeItems = document.querySelectorAll('.income-items');
-        }
+        cloneBlock.querySelectorAll('input')[1].addEventListener('input', () => {
+            if (!isNumber(cloneBlock.querySelectorAll('input')[1].value)) {
+                cloneBlock.querySelectorAll('input')[1].value = cloneBlock.querySelectorAll('input')[1].value.slice(0, -1);
+            }
+        });
 
-        if(event.path[0].className.split(' ')[1] == 'expenses_add') {
-            inputBlock(expensesItems,buttonPlusExpenses);
-            expensesItems = document.querySelectorAll('.expenses-items');
-        }
+        target.parentNode.insertBefore(cloneBlock, button);
+
+        const CountItems = document.querySelectorAll(`.${target.className}`);
+
+        if (CountItems.length === 3) {
+            button.style.display = 'none';
+        }      
 };
 
 
@@ -280,12 +289,10 @@ class AppData {
             if (depositCheckValue == true) {
                 depositCheck.click();
             }
-            let appDataCopy2 = new AppData;
-            Object.assign(appDataCopy2, new AppData);
-            
-            for (let key in this) {
-                if (typeof this[key] !== 'function') {
-                    this[key] = appDataCopy2[key];
+
+            for (let key in appData) {
+                if (typeof appData[key] !== 'function') {
+                    appData[key] = appDataCopy2[key];
                 }
             }
 
@@ -336,16 +343,25 @@ class AppData {
         });
 
         buttonPlusIncome.addEventListener('click', event => {
-            this.addBlock(event);
+            this.addBlock(event.target.closest('.income').querySelector('.income-items'), buttonPlusIncome);
+            incomeItems = document.querySelectorAll('.income-items');
         });
 
         buttonPlusExpenses.addEventListener('click', event => {
-            this.addBlock(event);
+            this.addBlock(event.target.closest('.expenses').querySelector('.expenses-items'),buttonPlusExpenses);
+            expensesItems = document.querySelectorAll('.expenses-items');
         });
     };
 }
 
+
+
+
 const appData = new AppData(),
-let depositCheckValue = false;
+    appDataCopy2 = Object.assign({}, new AppData());
+
+let
+    depositCheckValue = false;
+
 
 appData.addEventListeners();
