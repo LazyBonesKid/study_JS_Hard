@@ -383,8 +383,7 @@ class AppData {
             depositPercent.value = '';
             depositPercent.disabled = false;
             depositPercent.addEventListener('input', () => {
-                console.log(+depositPercent.value);
-                console.log(depositPercent.value[0]);
+
                 if(!isNumber(depositPercent.value) || +depositPercent.value > 100  || depositPercent.value.length > 3 || +depositPercent.value < 0 || depositPercent.value[0] == 0) {
                     depositPercent.value = depositPercent.value.slice(0, -1);
                 } 
@@ -393,7 +392,6 @@ class AppData {
             depositPercent.value = valueSelect;
             depositPercent.disabled = true;
         }
-        console.log(valueSelect);
     }
 
     depositHandler () {
@@ -487,27 +485,30 @@ function getCookie(name) {
 }
 
 const checkCookie = () => {
-        setInterval( () => {
-        for (let i = 0; i < localArr.length ; i++) {
-            console.log(localStorage.length);
-            if ( localStorage.length !== 0 && (localStorage[localArr[i]] == undefined || getCookie(localArr[i]) == undefined)) {
-                deletCookieAndLocalStorage();
-                cancel.click();
-            }
+    for (let i = 0; i < localArr.length ; i++) {
+        console.log(localStorage.length);
+        console.log(localStorage[localArr[i]]);
+        console.log(getCookie(localArr[i]));
+        if ( localStorage.length !== 0 && (localStorage[localArr[i]] == undefined || getCookie(localArr[i]) == undefined)) {
+            deletCookieAndLocalStorage();
+            cancel.click();
         }
-    }, 1000);
+    }
 };
 
-
+checkCookie();
 
 if (localStorage.budget !== undefined){
 
     // LOCALSTORAGE //
-    appData.income = JSON.parse(localStorage.income);
-    appData.expenses = JSON.parse(localStorage.expenses);
-    appData.addIncome = JSON.parse(localStorage.addIncome);
-    appData.addExpenses = JSON.parse(localStorage.addExpenses);
-    appData.deposit = JSON.parse(localStorage.deposit);
+    if(localStorage.income && localStorage.expenses && localStorage.addIncome && localStorage.deposit) {
+        appData.income = JSON.parse(localStorage.income);
+        appData.expenses = JSON.parse(localStorage.expenses);
+        appData.addIncome = JSON.parse(localStorage.addIncome);
+        appData.addExpenses = JSON.parse(localStorage.addExpenses);
+        appData.deposit = JSON.parse(localStorage.deposit);
+    }
+    
     appData.incomeMonth = +localStorage.incomeMonth;
     appData.budget = +localStorage.budget;
     appData.percentDeposit = localStorage.percentDeposit;
@@ -540,6 +541,4 @@ if (localStorage.budget !== undefined){
     appData.blockingInputs();
     appData.reset();
 }
-
-checkCookie();
 
